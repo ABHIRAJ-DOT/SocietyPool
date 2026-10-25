@@ -1,6 +1,24 @@
 export type Database = {
   public: {
     Tables: {
+      suppliers: {
+        Row: {
+          id: string;
+          owner_user_id: string | null;
+          business_name: string;
+          status: Database["public"]["Enums"]["supplier_status"];
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_user_id?: string | null;
+          business_name: string;
+          status?: Database["public"]["Enums"]["supplier_status"];
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["suppliers"]["Insert"]>;
+        Relationships: [];
+      };
       society_members: {
         Row: {
           id: string;
@@ -181,6 +199,7 @@ export type Database = {
       member_role: "resident" | "admin";
       membership_status: "active" | "pending" | "removed";
       order_status: "pending_confirmation" | "confirmed" | "packed" | "ready_for_pickup" | "out_for_delivery" | "completed" | "cancelled" | "refund_pending" | "refunded";
+      supplier_status: "pending" | "active" | "inactive";
     };
     CompositeTypes: Record<string, never>;
   };
