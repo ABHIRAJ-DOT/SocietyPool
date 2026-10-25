@@ -1,5 +1,5 @@
 -- Society Pool MVP foundation for Supabase (PostgreSQL + Auth).
--- Apply through the Supabase SQL editor or `supabase db push`.
+-- Apply through the Supabase SQL editor, or run `supabase db push` from backend/.
 
 create extension if not exists pgcrypto with schema extensions;
 
