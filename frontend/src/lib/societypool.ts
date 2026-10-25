@@ -29,6 +29,25 @@ export type ResidentOrder = {
   createdAt: string;
 };
 
+export type StaffAccess = {
+  kind: "supplier" | "admin";
+  entityId: string;
+  displayName: string;
+};
+
+export type StaffOrder = {
+  id: string;
+  residentId: string;
+  societyId: string;
+  societyName: string | null;
+  productName: string;
+  unitSize: string;
+  status: Database["public"]["Enums"]["order_status"];
+  quantity: number;
+  total: number;
+  createdAt: string;
+};
+
 const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -191,6 +210,134 @@ export async function placeResidentOrder(dealId: string, quantity: number) {
   const { data, error } = await supabase.rpc("create_order", {
     p_deal_id: dealId,
     p_quantity: quantity,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function getStaffAccess(userId: string): Promise<StaffAccess | null> {
+  const supabase = getSupabaseClient();
+  if (!supabase) throw new Error("Supabase is not configured.");
+
+  const [supplierResult, adminResult] = await Promise.all([
+    supabase
+      .from("suppliers")
+      .select("id, business_name")
+      .eq("owner_user_id", userId)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("society_members")
+      .select("society_id")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .eq("membership_status", "active")
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  if (supplierResult.error) throw supplierResult.error;
+  if (adminResult.error) throw adminResult.error;
+
+  if (supplierResult.data) {
+    return {
+      kind: "supplier",
+      entityId: supplierResult.data.id,
+      displayName: supplierResult.data.business_name,
+    };
+  }
+
+  if (!adminResult.data) return null;
+  const { data: society, error: societyError } = await supabase
+    .from("societies")
+    .select("name")
+    .eq("id", adminResult.data.society_id)
+    .maybeSingle();
+
+  if (societyError) throw societyError;
+  if (!society) return null;
+
+  return {
+    kind: "admin",
+    entityId: adminResult.data.society_id,
+    displayName: society.name,
+  };
+}
+
+export async function getStaffOrders(access: StaffAccess): Promise<StaffOrder[]> {
+  const supabase = getSupabaseClient();
+  if (!supabase) throw new Error("Supabase is not configured.");
+
+  let supplierProductIds: string[] | null = null;
+  if (access.kind === "supplier") {
+    const { data: products, error: productsError } = await supabase
+      .from("products")
+      .select("id")
+      .eq("supplier_id", access.entityId);
+    if (productsError) throw productsError;
+    supplierProductIds = (products ?? []).map((product) => product.id);
+    if (!supplierProductIds.length) return [];
+  }
+
+  const dealResult = access.kind === "admin"
+    ? await supabase.from("deals").select("id, society_id, product_id").eq("society_id", access.entityId)
+    : await supabase.from("deals").select("id, society_id, product_id").in("product_id", supplierProductIds ?? []);
+  const { data: deals, error: dealsError } = dealResult;
+  if (dealsError) throw dealsError;
+  if (!deals?.length) return [];
+
+  const dealIds = deals.map((deal) => deal.id);
+  const { data: orders, error: ordersError } = await supabase
+    .from("orders")
+    .select("id, user_id, society_id, deal_id, quantity, total_amount_snapshot, status, created_at")
+    .in("deal_id", dealIds)
+    .order("created_at", { ascending: false });
+  if (ordersError) throw ordersError;
+  if (!orders?.length) return [];
+
+  const productIds = [...new Set(deals.map((deal) => deal.product_id))];
+  const societyIds = [...new Set(deals.map((deal) => deal.society_id))];
+  const [productResult, societyResult] = await Promise.all([
+    supabase.from("products").select("id, name, unit_size").in("id", productIds),
+    supabase.from("societies").select("id, name").in("id", societyIds),
+  ]);
+  if (productResult.error) throw productResult.error;
+  if (societyResult.error) throw societyResult.error;
+
+  const dealById = new Map(deals.map((deal) => [deal.id, deal]));
+  const productById = new Map((productResult.data ?? []).map((product) => [product.id, product]));
+  const societyById = new Map((societyResult.data ?? []).map((society) => [society.id, society.name]));
+
+  return orders.flatMap((order) => {
+    const deal = dealById.get(order.deal_id);
+    const product = deal && productById.get(deal.product_id);
+    if (!deal || !product) return [];
+    return [{
+      id: order.id,
+      residentId: order.user_id,
+      societyId: order.society_id,
+      societyName: societyById.get(order.society_id) ?? null,
+      productName: product.name,
+      unitSize: product.unit_size,
+      status: order.status,
+      quantity: order.quantity,
+      total: Number(order.total_amount_snapshot),
+      createdAt: order.created_at,
+    }];
+  });
+}
+
+export async function updateStaffOrderStatus(
+  orderId: string,
+  status: Database["public"]["Enums"]["order_status"],
+) {
+  const supabase = getSupabaseClient();
+  if (!supabase) throw new Error("Supabase is not configured.");
+
+  const { data, error } = await supabase.rpc("update_order_status", {
+    p_order_id: orderId,
+    p_new_status: status,
   });
   if (error) throw error;
   return data;

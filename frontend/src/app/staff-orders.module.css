@@ -1,0 +1,287 @@
+.staffPanel {
+  min-height: 420px;
+}
+
+.staffTitleRow {
+  align-items: center;
+  gap: 18px;
+}
+
+.staffTitleRow h2 {
+  margin-bottom: 4px;
+}
+
+.staffTitleRow p {
+  margin: 0;
+  color: #827b86;
+  font-size: 11px;
+}
+
+.staffTitleRow button:disabled,
+.staffActions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.staffSummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+  margin: 18px 0 22px;
+}
+
+.staffSummary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid #eee8ef;
+  border-radius: 8px;
+  background: linear-gradient(120deg, #fff, #fcf8fc);
+}
+
+.staffSummary small {
+  color: #928a95;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.staffSummary b {
+  color: #4b275d;
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.staffToolbar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.staffToolbar button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #eee8ef;
+  border-radius: 18px;
+  background: #fff;
+  color: #77707c;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.staffToolbar button:hover {
+  border-color: #cdb6d1;
+}
+
+.staffToolbar .active {
+  border-color: #4d255f;
+  background: #4d255f;
+  color: #fff;
+}
+
+.staffCount {
+  margin-left: auto;
+  color: #928a95;
+  font-size: 9px;
+}
+
+.staffOrderList {
+  border-top: 1px solid #f0ebf1;
+}
+
+.staffOrder {
+  padding: 15px 0;
+  border-bottom: 1px solid #f0ebf1;
+}
+
+.staffOrderMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.staffOrderIcon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #eef6d9;
+  color: #63822a;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.staffOrderCopy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.staffOrderCopy b {
+  color: #35263a;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.staffOrderCopy span,
+.staffOrderCopy small {
+  overflow-wrap: anywhere;
+  color: #827b86;
+  font-size: 9px;
+}
+
+.staffOrderCopy small {
+  color: #a098a2;
+  font-size: 8px;
+}
+
+.staffOrderTotal {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.staffOrderTotal b {
+  color: #4b275d;
+  font-size: 14px;
+}
+
+.staffOrderTotal span {
+  max-width: 145px;
+  padding: 5px 8px;
+  border-radius: 14px;
+  background: #f6f1f7;
+  color: #6c5275;
+  font-size: 8px;
+  text-align: center;
+}
+
+.staffActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.staffActions .button-primary {
+  min-height: 32px;
+  height: auto;
+  font-size: 9px;
+}
+
+.staffEmpty {
+  display: flex;
+  min-height: 130px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #827b86;
+  text-align: center;
+  font-size: 10px;
+}
+
+.staffEmpty b {
+  color: #35263a;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+@media (max-width: 650px) {
+  .staffPanel {
+    padding: 19px 13px;
+  }
+
+  .staffTitleRow {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 17px;
+  }
+
+  .staffTitleRow p {
+    font-size: 9px;
+  }
+
+  .staffSummary {
+    gap: 6px;
+    margin: 13px 0 17px;
+  }
+
+  .staffSummary > div {
+    gap: 5px;
+    padding: 10px 8px;
+  }
+
+  .staffSummary small {
+    font-size: 6px;
+    line-height: 1.35;
+  }
+
+  .staffSummary b {
+    font-size: 19px;
+  }
+
+  .staffToolbar {
+    gap: 5px;
+  }
+
+  .staffToolbar button {
+    padding: 0 8px;
+    font-size: 8px;
+  }
+
+  .staffCount {
+    font-size: 7px;
+  }
+
+  .staffOrderMain {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .staffOrderIcon {
+    width: 32px;
+    height: 32px;
+    font-size: 10px;
+  }
+
+  .staffOrderCopy b {
+    font-size: 13px;
+  }
+
+  .staffOrderCopy span {
+    font-size: 8px;
+  }
+
+  .staffOrderCopy small {
+    line-height: 1.45;
+  }
+
+  .staffOrderTotal b {
+    font-size: 11px;
+  }
+
+  .staffOrderTotal span {
+    max-width: 100px;
+    padding: 4px 6px;
+    font-size: 7px;
+  }
+
+  .staffActions .button-primary {
+    flex: 1;
+    padding: 0 8px;
+    font-size: 8px;
+  }
+}
