@@ -1,24 +1,27 @@
 # Society Pool
 
-A mobile-first neighbourhood group-buying experience built with Next.js, TypeScript, and Tailwind CSS.
+A mobile-first neighbourhood group-buying app. Frontend and backend assets are kept in separate top-level folders.
 
-## Getting started
+## Repository layout
+
+- `frontend/` — Next.js, TypeScript, Tailwind CSS, and the resident-facing web app.
+- `backend/` — Supabase database migrations, development seed data, and shared backend contracts.
+- `AGENTS.md` — repository-wide Codex/Next.js contributor instructions.
+
+## Run the frontend
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Current prototype
+The resident UI currently uses mock data. Product photography loads from Unsplash and requires an internet connection. Do not enter real payment details; checkout is simulated.
 
-The resident home page includes deal discovery, category filtering, search, pooled-quantity progress, deal details, a demo basket, and demo order/profile views. Prices, progress, orders, and society information are sample data until the shared Supabase backend and API contracts are connected. Product photography loads from Unsplash and needs an internet connection.
+## Backend setup
 
-Do not enter real payment details. Checkout is simulated.
+The initial Supabase schema, RLS policies, resident RPCs, and seed data live in `backend/supabase/`. Apply `backend/supabase/migrations/202610250001_initial_schema.sql` to a **development** Supabase project before running `backend/supabase/seed.sql`. Never use the demo seed in production.
 
-## Supabase backend foundation
-
-The initial schema, row-level security policies, resident membership/order RPCs, and development seed data live in `supabase/`. Apply `supabase/migrations/202610250001_initial_schema.sql` to a new Supabase development project before running `supabase/seed.sql`. Never use the demo seed in production.
-
-The shared operations and status names are documented in [`docs/backend-contracts.md`](docs/backend-contracts.md). The resident UI still uses its local mock data; connecting it requires a Supabase project URL and publishable/anon key, followed by server/client integration. Never add a service-role key to browser code or commit secrets.
+Read [`backend/docs/backend-contracts.md`](backend/docs/backend-contracts.md) for canonical statuses, resident query/RPC contracts, security rules, and current limitations. The UI is not connected to Supabase yet. Never commit database passwords, API secrets, or a service-role key.
