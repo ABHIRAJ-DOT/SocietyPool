@@ -39,5 +39,7 @@ The client must never submit a price or total. `create_order` checks authenticat
 ## First-slice limitations
 
 - A trusted admin bootstrap process is still needed to grant the first society admin membership; never let the browser choose its role.
-- The supplier/admin order-status RPCs, deal close/expiry scheduler, authentication screens, and application-side Supabase client are not included in this foundation migration yet.
+- Supplier/admin order-status RPCs and the deal close/expiry scheduler are not included yet.
+- The current resident app supports email/password sign-up and sign-in, invite-code membership, society-scoped deal browsing, resident order history, and order placement through the validated RPC. It does not collect payment details or process payments.
+- Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `frontend/.env.local`. The frontend must use only the publishable key; all table access remains subject to the policies in this contract.
 - Demo invite code in `supabase/seed.sql`: `GREENVIEW-DEMO-2026`. Use only in a development project.
