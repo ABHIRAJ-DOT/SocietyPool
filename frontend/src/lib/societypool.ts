@@ -1,4 +1,5 @@
-import { createClient, type User } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
 
 export type SocietyMembership = {
   societyId: string;
@@ -31,14 +32,14 @@ export type ResidentOrder = {
 const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-let client: ReturnType<typeof createClient> | null = null;
+let client: SupabaseClient<Database> | null = null;
 
 export const hasSupabaseConfig = Boolean(projectUrl && publishableKey);
 
 export function getSupabaseClient() {
   if (!projectUrl || !publishableKey) return null;
 
-  client ??= createClient(projectUrl, publishableKey, {
+  client ??= createClient<Database>(projectUrl, publishableKey, {
     auth: {
       autoRefreshToken: true,
       detectSessionInUrl: true,

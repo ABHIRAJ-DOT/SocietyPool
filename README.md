@@ -29,6 +29,6 @@ The app shows sample deals while signed out. Residents can create an account, si
 
 ## Backend setup
 
-The initial Supabase schema, RLS policies, resident RPCs, and seed data live in `backend/supabase/`. Apply `backend/supabase/migrations/202610250001_initial_schema.sql` to a **development** Supabase project before running `backend/supabase/seed.sql`. The seed creates the Greenview demo society and sample deals; its invite code is `GREENVIEW-DEMO-2026`. Never use the demo seed in production.
+The initial Supabase schema, RLS policies, resident RPCs, and seed data live in `backend/supabase/`. Apply the migration files in `backend/supabase/migrations/` in filename order to a **development** Supabase project, then run `backend/supabase/seed.sql`. If the initial schema is already applied, apply any newer migrations before seeding or using the app. The seed creates the Greenview demo society and sample deals; its invite code is `GREENVIEW-DEMO-2026`. Never use the demo seed in production.
 
 Read [`backend/docs/backend-contracts.md`](backend/docs/backend-contracts.md) for canonical statuses, resident query/RPC contracts, security rules, and current limitations. `.env.local` is ignored by Git. Never commit database passwords, API secrets, or a secret/service-role key; the browser app uses only the publishable key and relies on RLS for data access.

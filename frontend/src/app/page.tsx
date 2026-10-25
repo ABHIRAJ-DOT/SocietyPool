@@ -28,13 +28,13 @@ type Page = "Home"|"Deals"|"Orders"|"Profile";
 function Icon({ name, size=18 }: { name:string; size?:number }) { const p:Record<string,ReactNode>={search:<><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></>,pin:<><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></>,bag:<><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></>,home:<><path d="m3 10 9-7 9 7M5 9v11h14V9M9 20v-6h6v6"/></>,grid:<><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></>,receipt:<><path d="M5 3h14v18l-3-2-4 2-4-2-3 2V3Z"/><path d="M8 8h8M8 12h8M8 16h4"/></>,user:<><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></>,plus:<><path d="M12 5v14M5 12h14"/></>,minus:<path d="M5 12h14"/>,arrow:<><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></>,close:<path d="m6 6 12 12M18 6 6 18"/>,clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,check:<path d="m5 12 4 4L19 6"/>,heart:<path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7Z"/>}; return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{p[name]}</svg>; }
 export default function Home(){
  const [page,setPage]=useState<Page>("Home"),[category,setCategory]=useState("Everything"),[query,setQuery]=useState(""),[cart,setCart]=useState<Record<string,number>>({}),[detail,setDetail]=useState<Deal|null>(null),[confirm,setConfirm]=useState(false),[toast,setToast]=useState(""),[orders,setOrders]=useState<string[]>([]);
- const [user,setUser]=useState<User|null>(null),[membership,setMembership]=useState<SocietyMembership|null>(null),[backendDeals,setBackendDeals]=useState<ResidentDeal[]>([]),[residentOrders,setResidentOrders]=useState<ResidentOrder[]>([]),[backendLoading,setBackendLoading]=useState(true),[backendMessage,setBackendMessage]=useState(""),[authMode,setAuthMode]=useState<"sign-in"|"sign-up">("sign-in"),[authEmail,setAuthEmail]=useState(""),[authPassword,setAuthPassword]=useState(""),[fullName,setFullName]=useState(""),[inviteCode,setInviteCode]=useState(""),[authBusy,setAuthBusy]=useState(false),[checkoutBusy,setCheckoutBusy]=useState(false);
- const activeDeals:Deal[]=user?(membership?backendDeals:[]):deals;
+ const [user,setUser]=useState<User|null>(null),[membership,setMembership]=useState<SocietyMembership|null>(null),[backendDeals,setBackendDeals]=useState<ResidentDeal[]>([]),[residentOrders,setResidentOrders]=useState<ResidentOrder[]>([]),[backendLoading,setBackendLoading]=useState(false),[backendMessage,setBackendMessage]=useState(""),[authMode,setAuthMode]=useState<"sign-in"|"sign-up">("sign-in"),[authEmail,setAuthEmail]=useState(""),[authPassword,setAuthPassword]=useState(""),[fullName,setFullName]=useState(""),[inviteCode,setInviteCode]=useState(""),[authBusy,setAuthBusy]=useState(false),[checkoutBusy,setCheckoutBusy]=useState(false);
+ const activeDeals=useMemo<Deal[]>(()=>user?(membership?backendDeals:[]):deals,[user,membership,backendDeals]);
  const items=Object.values(cart).reduce((a,b)=>a+b,0),total=activeDeals.reduce((n,d)=>n+d.price*(cart[d.id]||0),0);
  const visible=useMemo(()=>activeDeals.filter(d=>(category==="Everything"||d.category===category)&&`${d.name} ${d.pack}`.toLowerCase().includes(query.toLowerCase())),[activeDeals,category,query]);
  useEffect(()=>{
   const supabase=getSupabaseClient();
-  if(!supabase){setBackendLoading(false);return}
+  if(!supabase)return;
   void supabase.auth.getSession().then(({data,error})=>{
    if(error)setBackendMessage(error.message);
    setUser(data.session?.user??null);
@@ -42,8 +42,8 @@ export default function Home(){
   });
   const {data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{
    setUser(session?.user??null);
-   if(event==="SIGNED_IN"||event==="SIGNED_UP"){setCart({});setOrders([])}
-   if(!session){setMembership(null);setBackendDeals([]);setResidentOrders([]);setCart({});}
+   if(event==="SIGNED_IN"){setCart({});setOrders([])}
+   if(!session){setMembership(null);setBackendDeals([]);setResidentOrders([]);setCart({});setBackendLoading(false);}
    setBackendMessage("");
   });
   return()=>subscription.unsubscribe();
@@ -51,7 +51,7 @@ export default function Home(){
  useEffect(()=>{
   let current=true;
   async function loadMembership(){
-   if(!user){setMembership(null);setBackendDeals([]);setResidentOrders([]);setBackendLoading(false);return}
+   if(!user)return;
    setBackendLoading(true);
    try{const active=await getActiveMembership(user);if(current)setMembership(active)}
    catch(error){if(current)setBackendMessage(error instanceof Error?error.message:"Could not load your society membership.")}
