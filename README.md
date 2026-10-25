@@ -18,10 +18,17 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-The resident UI currently uses mock data. Product photography loads from Unsplash and requires an internet connection. Do not enter real payment details; checkout is simulated.
+Create `frontend/.env.local` with the Supabase project URL and publishable key before starting the app:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+```
+
+The app shows sample deals while signed out. Residents can create an account, sign in, join a society with its invite code, browse that society's live deals, and place orders through the database RPC. Email confirmation may be required, depending on the Supabase Auth settings. The app does not collect or process payments. Product photography loads from Unsplash and needs an internet connection.
 
 ## Backend setup
 
-The initial Supabase schema, RLS policies, resident RPCs, and seed data live in `backend/supabase/`. Apply `backend/supabase/migrations/202610250001_initial_schema.sql` to a **development** Supabase project before running `backend/supabase/seed.sql`. Never use the demo seed in production.
+The initial Supabase schema, RLS policies, resident RPCs, and seed data live in `backend/supabase/`. Apply `backend/supabase/migrations/202610250001_initial_schema.sql` to a **development** Supabase project before running `backend/supabase/seed.sql`. The seed creates the Greenview demo society and sample deals; its invite code is `GREENVIEW-DEMO-2026`. Never use the demo seed in production.
 
-Read [`backend/docs/backend-contracts.md`](backend/docs/backend-contracts.md) for canonical statuses, resident query/RPC contracts, security rules, and current limitations. The UI is not connected to Supabase yet. Never commit database passwords, API secrets, or a service-role key.
+Read [`backend/docs/backend-contracts.md`](backend/docs/backend-contracts.md) for canonical statuses, resident query/RPC contracts, security rules, and current limitations. `.env.local` is ignored by Git. Never commit database passwords, API secrets, or a secret/service-role key; the browser app uses only the publishable key and relies on RLS for data access.
