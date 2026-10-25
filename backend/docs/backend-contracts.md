@@ -24,6 +24,14 @@ All operations require a signed-in Supabase user. Row Level Security scopes soci
 | List own orders | `from('orders').select(...)` | Optional status/order filters | Only the authenticated resident's orders |
 | Read own status history | `from('order_status_history').select(...)` | Order id | History for the resident's own order |
 
+## Supplier and admin operations
+
+| Operation | Supabase call | Input | Result |
+| --- | --- | --- | --- |
+| Advance order status | `rpc('update_order_status')` | `{ p_order_id, p_new_status }` | Updated order; the database transition trigger records status history |
+
+Suppliers may advance only their assigned product orders through fulfillment (`confirmed` → `packed` → `ready_for_pickup` or `out_for_delivery` → `completed`). Society admins may perform any transition allowed by the order status trigger for orders in their society. Residents cannot call this operation successfully, and direct order updates remain revoked.
+
 The client must never submit a price or total. `create_order` checks authentication, active membership, deal status and time window, product availability, and quantity (1-20), then locks the deal row while creating the order and updating `open` to `target_reached` when appropriate. It snapshots `pooled_price` and total in one transaction. A failed RPC is an order failure; the UI must not optimistically show a confirmed order.
 
 ## MVP access rules
@@ -39,7 +47,7 @@ The client must never submit a price or total. `create_order` checks authenticat
 ## First-slice limitations
 
 - A trusted admin bootstrap process is still needed to grant the first society admin membership; never let the browser choose its role.
-- Supplier/admin order-status RPCs and the deal close/expiry scheduler are not included yet.
+- The supplier/admin order-status RPC is included; a deal close/expiry scheduler and admin bootstrap workflow are still needed.
 - The current resident app supports email/password sign-up and sign-in, invite-code membership, society-scoped deal browsing, resident order history, and order placement through the validated RPC. It does not collect payment details or process payments.
 - Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `frontend/.env.local`. The frontend must use only the publishable key; all table access remains subject to the policies in this contract.
 - Demo invite code in `supabase/seed.sql`: `GREENVIEW-DEMO-2026`. Use only in a development project.
