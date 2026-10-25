@@ -168,6 +168,13 @@ export type Database = {
         Args: { p_invite_code: string };
         Returns: Array<{ id: string; name: string; city_area: string }>;
       };
+      update_order_status: {
+        Args: {
+          p_order_id: string;
+          p_new_status: Database["public"]["Enums"]["order_status"];
+        };
+        Returns: Database["public"]["Tables"]["orders"]["Row"];
+      };
     };
     Enums: {
       deal_status: "draft" | "scheduled" | "open" | "target_reached" | "successful" | "failed" | "expired" | "cancelled";
