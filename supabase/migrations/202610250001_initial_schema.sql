@@ -200,7 +200,12 @@ begin
   insert into public.society_members (society_id, user_id)
   values (v_society_id, v_user_id)
   on conflict (society_id, user_id)
-  do update set membership_status = 'active';
+  do update set
+    membership_status = 'active',
+    role = case
+      when public.society_members.membership_status = 'removed' then 'resident'::public.member_role
+      else public.society_members.role
+    end;
 
   return query select s.id, s.name, s.city_area
   from public.societies s where s.id = v_society_id;
